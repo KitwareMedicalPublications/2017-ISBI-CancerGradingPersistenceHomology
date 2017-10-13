@@ -12,8 +12,8 @@
 
 % Title.
 % ------
-\title{Application of Image-based Persistence Homology Descriptors for 
-Cancer Diagnosis and Grading from Histopathology Images}
+\title{Application of Vectorized Persistence Homology Representations for 
+Cancer Grading in Histopathology Images}
 %
 % Single address.
 % ---------------
@@ -57,23 +57,27 @@ Cancer Diagnosis and Grading from Histopathology Images}
 \end{abstract}
 %
 \begin{keywords}
-Histopathology, Cancer, Diagnosis, Grading, Persistence homology, Persistence images, Persistence landscapes
+Histopathology, Cancer Diagnosis, Cancer Grading, Persistence homology, Persistence diagrams, Persistence images, Persistence landscapes
 \end{keywords}
 %
 \section{Introduction}
 \label{sec:intro}
-Cancer diagnosis and grading is the process of determining the presence and extent of malignancy and is one of the primary criteria used in clinical practice to inform prognosis and plan the treatment of individual patients. However, achieving good reproducibility in grading most cancers remains one of the challenges in pathology practice.
-\section{Methods}
+Cancer grading refers to the process of determining the degree of malignancy and is one of the primary criteria used in clinical practice to inform prognosis and plan the treatment of individual patients. However, achieving good reproducibility in grading most cancers remains one of the challenges in pathology practice.
+
+\section{Background}
+% introduce persistence homology, persistence diagrams
+% talk about representational inconvenience of persistence diagrams for ML
+% talk about persistence images
+% talk about persistence landscapes
+% describe how we apply them for cancer diagnosis and grading
+
+\section{Method}
+
 
 \section{Results}
+We used the MICCAI 2015 Gland Segmentation Challenge Contest dataset~\cite{Sirinukunwattana2017GlandContest} to develop and validate the proposed method. This dataset contains a total of 165 images derived from 16 hematoxylin-eosin stained histological sections of stage T3 and T4 colorectal adenocarcinoma digitized using a Zeiss MIRAX MIDI SlideScanner with a pixel resolution of $0.620 \mu m$ equivalent to a 20x objective magnification. An expert pathologist delineated the boundary of all the glands in each image and graded the image as either $benign$ or $malignant$ based on the overall glandular architecture. Figure 1 shows representative example images of the two grades and Table 1 shows the distribution of grades in the training and testing sets.
 
-\section{REFERENCES}
-\label{sec:ref}
-
-% References should be produced using the bibtex program from suitable
-% BiBTeX files (here: strings, refs, manuals). The IEEEbib.bst bibliography
-% style file from IEEE produces unsorted bibliography list.
-% -------------------------------------------------------------------------
+% References
 \bibliographystyle{IEEEbib}
 \bibliography{mendeley}
 
