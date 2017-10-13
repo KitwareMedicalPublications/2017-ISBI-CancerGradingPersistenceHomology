@@ -84,19 +84,17 @@ Given a dataset representable in the form of a point cloud in some space, persis
 
 The basic building blocks of persistence homology are simplices, simplicial complexes, and homology groups. A p-simplex $\sigma_p$ is defined as the convex hull of $p+1$ affinely independent points/vertices. For example, a single vertex is called a 0-simplex, an edge is called a 1-simplex, a triangle is called a 2-simplex, a tetrahedron is called a 3-simplex, and so on. A face of a p-simplex is defined as a subset of its $p+1$ points/vertices. For example, the tetrahedron which is a 3-simplex has 4 triangular faces, 6 edge faces, and 4 vertex faces each of which are simplices themselves. A simplicial complex $K$ is a finite collection of simplices subject to two conditions: (i) if a simplex $\sigma$ is in $K$ and any face of $\sigma$ is also in $K$, and (ii) if two simplices $\sigma$ and $\sigma'$ are in K then $\sigma \cap \sigma'$ must either be empty or a face of both $\sigma$ and $\sigma'$ i.e. they must either be glued together along whole faces or be separate. A d-dimensional homology group $H_d(K)$ of a simplicial complex $K$ is the set of all d-dimensional holes in it. For example, the 0-dimensional homology group $H_0(K)$ is the set of all connected components, the 1-dimensional homology group $H_1(K)$ is the set of all 2D loops, the 2-dimensional homology group $H_2(K)$ is the set of all 3D cavities and so on. The rank or the number of holes in a d-dimensional homology group $H_d(K)$ is referred to as the d-dimensional Betti number $\beta_d(K)$. 
 
-Given a dataset in the form of a point cloud of $n$ points $x_1, x_2, ..., x_n \in \mathbb{R}^d$, how can we derive a simplicial complex that encodes the underlying topological structure? One approach for generating it is to examine all subsets of $p+1$ points, and add the p-simplex made up of those points to the simplical complex if the distance between all pairs of points in the simplex is less than a present distance $\epsilon$. Such a complex is called a Vectoris-Rips complex of diameter $\epsilon$ which we will henceforth denote as $VR(\epsilon)$. Note that, if a simplex is in $VR(\epsilon)$, then all its faces are also in $VR(\epsilon)$.
-
-
+Given a dataset in the form of a point cloud of $n$ points $x_1, x_2, ..., x_n \in \mathbb{R}^d$, how can we derive a simplicial complex that encodes the underlying topological structure? One approach for generating it is to examine all subsets of $p+1$ points, and add the p-simplex made up of those points to the simplical complex if the distance between all pairs of points in the simplex is less than a present distance $\epsilon$. Such a complex is called a Vectoris-Rips complex of diameter $\epsilon$ which we will henceforth denote as $VR(\epsilon)$. Note that, if a simplex is in $VR(\epsilon)$, then all its faces are also in $VR(\epsilon)$. The schematic below shows the Vectoris-rips complex for different diameters for a dataset of four points corresponding to the corners of a rectangle with width = 2 and height = 1.
 %
-\begin{figure}[h]
+\begin{figure}[!h]
 \centering
 %
-\includegraphics[width=3.5in]{figures/vrcomplex-diagram.png}
+\includegraphics[width=3.75in]{figures/vrcomplex-diagram.png}
 %
-\caption{Vectoris-rips complex $VR(\epsilon)$ for different values of diameter $\epsilon$ for a dataset of four points corresponding to the corners of a rectangle with width = 2 and height = 1.}
 \label{fig:vrcomplex-diagram}
 \end{figure}
 %
+
 \subsection{Using vectorized persistence homology representations for cancer grading}
 \label{sec:method:proposed}
 
