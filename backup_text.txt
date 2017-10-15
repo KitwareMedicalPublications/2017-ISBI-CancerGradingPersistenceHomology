@@ -1,0 +1,3 @@
+Cancer grading refers to the process of determining the degree of malignancy. It is one of the primary  criteria used in clinical practice to inform prognosis and plan the treatment of individual patients. However, achieving good reproducibility in grading most cancers remains one of the challenges in pathology practice.
+
+

@@ -19,7 +19,7 @@
 % Title.
 % ------
 \title{Application of Vectorized Persistent Homology Representations for 
-Cancer Grading in Histopathology Images}
+Cancer Diagnosis and Grading in Histopathology Images}
 %
 % Single address.
 % ---------------
@@ -68,15 +68,13 @@ Histopathology, Cancer Diagnosis, Cancer Grading, Persistence homology, Persiste
 %
 \section{Introduction}
 \label{sec:intro}
-Cancer grading refers to the process of determining the degree of malignancy and is one of the primary criteria used in clinical practice to inform prognosis and plan the treatment of individual patients. However, achieving good reproducibility in grading most cancers remains one of the challenges in pathology practice.
+Histopathology refers to the study of the presence, extent, and progression of a disease through microscopic examination of thin sections of biopsied tissue that are chemically processed and fixed onto glass slides and dyed with one or more stains to highlight different cellular/tissue components (e.g. cell nuclei, cell membrane, cytoplasm) and antigens/proteins (e.g. Ki-67 indicating cell proliferation) of interest. It is regarded as the gold standard in clinical diagnosis and grading of several diseases including most types of cancer. 
 
-\section{Method}
-\label{sec:method}
-In this section, we present the theory underlying the proposed method along with visual illustrations of intermediate results to help understand the underlying concepts. In section~\ref{sec:method:homology}, we present a brief background on persistence homology. In section~\ref{sec:method:proposed}, we describe our strategy of using vectorized representations of persistence homology information for cancer grading.
+Pathologists visually scout across the tissue section under a microscope and examine the regularities in the appearance and architecture of a variety of biological structures (e.g. cells, glands) to determine the presence and extent malignancy. This process is very time consuming and its success depends heavily on the expertise and experience of the pathologist with substantial intra-observer and inter-observer variation. The recent emergence and increased adoption of cost and time efficient whole-slide image (WSI) scanners that can capture digital images of an entire tissue section at a cellular resolution within a few minutes has opened the door for the development of computer-aided image analysis algorithms to improve the efficiency, objectivity, reproducibility and accuracy of the diagnostic process.
 
-\subsection{Background on persistent homology}
-\label{sec:method:homology}
-Given a dataset representable in the form of a point cloud in some space, persistent homology can be seen as a theoretical tool to detect and characterize its prominent topological features (e.g. connected components, loops, voids) at multiple scales~\cite{Zhu2013}. These topological descriptors can then be used as features for building machine learning models to solve predictive problems. 
+\section{Background}
+\label{sec:background}
+In this section, we present a brief background on persistence homology. Given a dataset representable in the form of a point cloud in some space, persistent homology can be seen as a theoretical tool to detect and characterize its prominent topological features (e.g. connected components, loops, voids) at multiple scales~\cite{Zhu2013}. These topological descriptors can then be used as features for building machine learning models to solve predictive problems. 
 
 \smallskip
 \noindent \textbf{Simplicial homology:} The foundational concepts of persistent homology are simplices, simplicial complexes, filtration, and homology groups. A p-simplex $\sigma_p$ is defined as the convex hull of $p+1$ affinely independent points/vertices. For example, a single vertex is called a 0-simplex, an edge is called a 1-simplex, a triangle is called a 2-simplex, a tetrahedron is called a 3-simplex, and so on. A face of a p-simplex is defined as a subset of its $p+1$ points/vertices. For example, the tetrahedron which is a 3-simplex has 4 triangular faces, 6 edge faces, and 4 vertex faces each of which are simplices themselves. A simplicial complex $K$ is a finite collection of simplices subject to two conditions: (i) if a simplex $\sigma$ is in $K$ and any face of $\sigma$ is also in $K$, and (ii) if two simplices $\sigma$ and $\sigma'$ are in K then $\sigma \cap \sigma'$ must either be empty or a face of both $\sigma$ and $\sigma'$ i.e. they must either be glued together along whole faces or be separate. Given a simplicial complex $K$, a simplicial complex $L$ formed by a subset of its simplices is referred to as the sub-complex of $K$ denoted symbolically as $L \subset K$. A nested sequence of simplicial sub-complexes $K_0 = \phi \subset K_1 \subset K_2 \subset ... \subset K_n = K$ that ascends from an empty set all the way up to $K$ is called a filtration of $K$ denoted as $\mathbb{F}(K)$. A d-dimensional homology group $H_d(K)$ of a simplicial complex $K$ is the set of all d-dimensional holes in it. For example, the 0-dimensional homology group $H_0(K)$ is the set of all connected components, the 1-dimensional homology group $H_1(K)$ is the set of all 2D loops, the 2-dimensional homology group $H_2(K)$ is the set of all 3D cavities and so on. The rank or the number of holes in a d-dimensional homology group $H_d(K)$ is referred to as the d-dimensional Betti number $\beta_d(K)$. 
@@ -94,7 +92,7 @@ Given a dataset representable in the form of a point cloud in some space, persis
 \noindent A natural question that arises now is how to choose the best diameter $\epsilon$ for a given dataset. Persistent homology examines all diameters within a range of interest to see how the system of holes change paving the way to a topological characterization at multiple scales. An increasing sequence of diameters/scales $\epsilon_1 < \epsilon_2 < ... < \epsilon_n$ results in a nested sequence of Vectoris-Rips simplicial complexes $VR(\epsilon_1) \subset VR(\epsilon_2) \subset ... \subset VR(\epsilon_n)$ referred to as the Vectoris-Rips filtration.
 
 \smallskip
-\noindent \textbf{Persistence diagram (PD) representation:} Given a filtration $\mathbb{F}$ through a series of $n$ scales, the idea of persistent homology is to track the scales at which each hole appears and disappears. This information can be summarized in the form of a multi-set $BD_d(\mathbb{F}) = \{(b_i, d_i) \mid b_i, d_i \in \{1, 2, ..., n\} \land b_i < d_i \}$  containing the birth-death scales of each d-dimensional hole $i$ in the filtration. Considering these pairs as points in $\mathbb{R}^2$ we obtain the persistence diagram representation and considering them as birth-death intervals $[b_i, d_i]$ we obtain the barcode representation. This summarization of topological information in the form of a multi-set of points is difficult to work with from the point of view of statistics and machine learning, for which a finite-dimensional vector representation is more convenient. Persistence landscapes~\cite{Adams2015} and persistence images~\cite{Bubenik2012}, described below, are two recently developed vectorized persistent homology to address this problem.
+\noindent \textbf{Persistence diagram (PD) representation:} Given a filtration $\mathbb{F}$ through a series of $n$ scales, the idea of persistent homology is to track the scales at which each hole appears and disappears. This information can be summarized in the form of a multi-set $BD_d(\mathbb{F}) = \{(b_i, d_i) \mid b_i, d_i \in \{1, 2, ..., n\} \land b_i < d_i \}$ of 2D points representing the birth-death scales of each d-dimensional hole $i$ in the filtration. Considering these pairs as points in $\mathbb{R}^2$ we obtain the persistence diagram representation and considering them as birth-death intervals $[b_i, d_i]$ we obtain the barcode representation. This summarization of topological information as a multi-set of points is difficult to work with from the point of view of statistics and machine learning, wherein a finite-dimensional vector representation is more convenient. Persistence landscapes~\cite{Adams2015} and persistence images~\cite{Bubenik2012}, described below, are two recently developed vectorized persistent homology to address this problem.
 
 \smallskip 
 \noindent \textbf{Persistence landscape (PL) representation:} Given a birth-death pair $(b,d)$, let $f_{(b,d)}: \mathbb{R} \to [0, \infty]$ be a piece-wise linear triangle shaped function defined as follows:
@@ -105,7 +103,7 @@ f_{(b,d)}\left ( x \right ) = \left\{\begin{array}{lll}
  d - x & if & x \in \left(\frac{b + d}{2}, d\right)
 \end{array}\right.    
 \end{equation}
-Now, given a multi-set of $m$ birth-death points $\{(b_i, d_i)\}_{i=1}^{m}$ from a PD, persistence landscape is defined as a 2D function $\lambda : \mathbb{N} \times \mathbb{R} \to [0, \infty]$ where $\lambda(k, x)$ is equal to the k-th largest value of $\{f_{(b_i, d_i)}\left(x\right)\}_{i=1}^{m}$ if $k \leq m$ and zero otherwise. This function can be discretized over a grid to obtain a finite-dimensional vector representation for machine learning.
+Given a multi-set of $m$ birth-death points $\{(b_i, d_i)\}_{i=1}^{m}$ from a PD, persistence landscape is defined as a 2D function $\lambda : \mathbb{N} \times \mathbb{R} \to [0, \infty]$ where $\lambda(k, x)$ is equal to the k-th largest value of $\{f_{(b_i, d_i)}\left(x\right)\}_{i=1}^{m}$ if $k \leq m$ and zero otherwise. This function can be discretized over a grid to obtain a finite-dimensional vector representation for machine learning.
 
 \smallskip
 \noindent \textbf{Persistence image (PI) representation:} Given a multi-set of $m$ birth-death points $BD=\{(b_i, d_i)\}_{i=1}^{m}$ from a PD, a linear transform $T(b, d) = (b, d-b)$ is applied to obtain a multi-set of birth-persistence points $BP=\{(b_i, p_i)\}_{i=1}^{m}$. Based on this, a 2D real-valued function $\rho_{bp} : \mathbb{R} \times \mathbb{R} \to \mathbb{R}$ called a persistence surface is defined as weighted sum of isotropic bi-variate gaussian/normal probability density functions $\mathcal{N}\left(x, y; \sigma^2\right)$ with variance $\sigma^2$ centered at each of the birth-persistence pairs as follows:
@@ -122,10 +120,15 @@ w(b, p; c) = \left\{\begin{array}{ll}
 \end{equation}
 where $c$ is the persistence value of the most important topological feature. Lastly, the persistence image is generated be defining a discrete grid in the domain of the 2D persistence surface function $\rho_{bp}(x, y)$ and computing its integral in each grid box. In case the birth values of all the points is equal to zero, as is often the case with the 0-dimensional homology group $H_0$ tracking the set of connected components, then both the persistence surface and persistence image can be represented compactly in 1D.  
 
-\subsection{Using vectorized persistence homology representations for cancer grading}
-\label{sec:method:proposed}
+\section{Method}
+\label{sec:method}
+In this section, we present the theory underlying the proposed method along with visual illustrations of intermediate results to help understand the underlying concepts. 
 
-Given a histology image, we first pre-process it using the color normalization method of Reinhard\etal~\cite{Reinhard2001}. Next, we use the unsupervised color deconvolution method of Macenko\etal~\cite{Macenko2009} to seperate out the nuclear stain. Next, we use the minimum cross entropy thresholding method of Li\etal~\cite{Li1998} to segment the nuclear foreground. Next, we use a difference-of-gaussian implementation of the scale-adaptive multiscale laplacian-of-gaussian filter proposed by Al-Kofahi\etal~\cite{Al-Kofahi2010} to detect the nuclear centroids.
+Given a histology image, we first pre-process it using the color normalization method of Reinhard\etal~\cite{Reinhard2001}. Next, we use the unsupervised color deconvolution method of Macenko\etal~\cite{Macenko2009} to seperate out the nuclear stain. Next, we use the minimum cross entropy thresholding method of Li\etal~\cite{Li1998} to segment the nuclear foreground. Lastly, we use a fast difference-of-gaussian implementation of the scale-adaptive multiscale Laplacian-of-Gaussian filter proposed by Al-Kofahi\etal~\cite{Al-Kofahi2010} to detect the nuclear centroids. 
+
+Considering the set of nuclear centroid coordinates as a point cloud, we compute the persistence diagram of its Vectoris-rips filtration for the homological dimension-1 corresponding to 2D loops. Next, from the persistence diagram, we compute persistence landscape and persistence image representations as described in Section~\ref{sec:background} and use them as features encoding the underlying topological structure of the data. 
+
+
 
 \section{Results}
 \label{sec:results}
