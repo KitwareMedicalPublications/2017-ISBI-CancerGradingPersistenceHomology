@@ -19,11 +19,11 @@
 % Title.
 % ------
 \title{Application of Vectorized Persistent Homology Representations for 
-Cancer Diagnosis and Grading in Digital Histopathology Images}
+Cancer Grading in Digital Histopathology Images}
 %
 % Single address.
 % ---------------
-\name{Author(s) Name(s)\thanks{Thanks to XYZ agency for funding.}}
+\name{Author(s) Name(s)}%\thanks{Thanks to XYZ agency for funding.}}
 \address{Author Affiliation(s)}
 %
 % For example:
@@ -69,9 +69,11 @@ Histopathology, Cancer Diagnosis, Cancer Grading, Persistence homology, Persiste
 %
 \section{Introduction}
 \label{sec:intro}
-Histopathology is the study of the presence, extent, and progression of a disease through microscopic examination of thin sections of biopsied tissue that are chemically processed and fixed onto glass slides and dyed with one or more stains to highlight different cellular/tissue components (e.g. cell nuclei, cell membrane, cytoplasm) and antigens/proteins (e.g. Ki-67 indicating cell proliferation) of interest. It is regarded as the gold standard in clinical diagnosis and grading of several diseases including most types of cancer. 
+Histopathology is the study of the presence, extent, and progression of a disease through microscopic examination of thin sections of biopsied tissue that are chemically processed and fixed onto glass slides and dyed with one or more stains to highlight different cellular/tissue components (e.g. cell nuclei or membranes) and antigens/proteins (e.g. Ki-67 indicating cell proliferation) of interest. It is regarded as the gold standard in clinical diagnosis and grading of several diseases including most types of cancer. 
 
-Pathologists scout across the tissue section under a microscope and visually examine the appearance. morphology and spatial organization of a variety of biological structures (e.g. nuclei, glands) to determine the presence and extent of malignancy. This process is very time consuming and its success depends heavily on the expertise and experience of the pathologist with substantial intra-observer and inter-observer variation. The advent of cost and time efficient whole-slide image (WSI) scanners that can capture digital images of an entire tissue section at a cellular resolution within a few minutes has opened the door for the development of computer-aided image analysis algorithms to improve the efficiency, objectivity, reproducibility and accuracy of the diagnostic process.
+In clinical practice, histologic evaluation still largely involves the manual assessment of glass slides by a pathologist using a traditional microscope, although improvements in whole-slide imaging devices and subsequent regulatory approval of whole-slide-imaging and computational algorithms are rapidly paving the way for increased clinical use of digital pathology. Algorithmic evaluation of tissue specimens may eventually improve the efficiency, objectivity, reproducibility, and accuracy of the diagnostic process.
+
+Pathologists integrate information across scales from subcellular to macro when evaluating histology. For adenocarcinomas, lesions that originate in the epithelium of glandular structures including lung, prostate, pancreatic, and colorectal cancers, the architecture of glandular structures conveys significant information about the presence and degree of malignancy. Normal appearing structures with organized epithelium become disorganized with the unchecked growth and aberrant signaling in cancer. Significant work has been done to develop quantitative features and algorithms for characterizing glandular structures with the aim of providing computer-aided grading. In this paper we present a new feature for characterizing high-level structure based on \emph{persistence homology} and demonstrate its application in colorectal cancer.
 
 \section{Background}
 \label{sec:background}
@@ -125,15 +127,30 @@ where $c$ is the persistence value of the most important topological feature. La
 \label{sec:method}
 In this section, we present the theory underlying the proposed method along with visual illustrations of intermediate results to help understand the underlying concepts. 
 
-\noindent \textbf{Nuclei centroid detection:} Given a histology image, we first pre-process it using the color normalization method of Reinhard\etal~\cite{Reinhard2001}. Next, we use the unsupervised color deconvolution method of Macenko\etal~\cite{Macenko2009} to seperate out the nuclear stain. Next, we use the minimum cross entropy thresholding method of Li\etal~\cite{Li1998} to segment the nuclear foreground. Lastly, we use a fast difference-of-gaussian implementation of the scale-adaptive multiscale Laplacian-of-Gaussian filter proposed by Al-Kofahi\etal~\cite{Al-Kofahi2010} to detect the nuclear centroids. 
+\noindent \textbf{Detect nuclei centroids:} Given a histology image, we first pre-process it using the color normalization method of Reinhard\etal~\cite{Reinhard2001}. Next, we use the unsupervised color deconvolution method of Macenko\etal~\cite{Macenko2009} to seperate out the nuclear stain. Next, we use the minimum cross entropy thresholding method of Li\etal~\cite{Li1998} to segment the nuclear foreground. Lastly, we use a fast difference-of-gaussian implementation of the scale-adaptive multiscale Laplacian-of-Gaussian filter proposed by Al-Kofahi\etal~\cite{Al-Kofahi2010} to detect the nuclear centroids. 
 
 \noindent \textbf{Extract topological features using persistent homology:} Considering the set of nuclear centroid coordinates as a point cloud, we compute the persistence diagram of its Vectoris-rips filtration for the homological dimension-1 corresponding to 2D loops. Next, from the persistence diagram, we compute persistence landscape and persistence image representations as described in Section~\ref{sec:background} and use them as features encoding the underlying topological structure of the data. 
 
-\noindent \textbf{Extract appearance features:}
+\noindent \textbf{Train machine learning model for cancer grading:}
 
 \section{Results}
 \label{sec:results}
 We used the MICCAI 2015 Gland Segmentation Challenge Contest dataset~\cite{Sirinukunwattana2017} to develop and validate the proposed method. This dataset contains a total of 165 images derived from 16 hematoxylin-eosin stained histological sections of stage T3 and T4 colorectal adenocarcinoma digitized using a Zeiss MIRAX MIDI SlideScanner with a pixel resolution of $0.620 \mu m$ equivalent to a 20x objective magnification. An expert pathologist delineated the boundary of all the glands in each image and graded the image as either $benign$ or $malignant$ based on the overall glandular architecture. The dataset is divided into two parts: a training set of 85 images (37 benign, 48 malignant) and a test set of 80 images (37 benign, 43 malignant).
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|c|c|}
+\hline
+ & \textbf{Accuracy} & \textbf{AUC} \\ \hline
+Persistence image features & 90 &  \\ \hline
+Persistence landscape features & 86 &  \\ \hline
+All persistence homology features &  &  \\ \hline
+Cell graph features &  &  \\ \hline
+\end{tabular}
+\caption{Benign vs Malignant classification performance using different feature sets}
+\label{tab:cancer_diagnosis_result}
+\end{table}
+
 
 \section{Conclusion}
 \label{sec:conclusion}
