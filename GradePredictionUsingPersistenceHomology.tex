@@ -59,13 +59,11 @@ Cancer Grading in Digital Histopathology Images}
 %
 \begin{abstract}
 % 100 - 150 words
-Histopathology - microscopic examination of thin sections of biopsied tissue - is regarded as the gold standard in clinical diagnosis, grading and prognosis of several diseases including most types of cancer.
+The characterization of glandular structures in histopathology images of adenocarcinomas is a fundamental problem in digital pathology, with important implications for computer-assisted diagnosis and grading. In this paper we describe a new class of features for describing topological patterns in histology images. We describe the mathematical formulation of these features, their implementation, and illustrate their application to colorectal cancer.
 
 \end{abstract}
 %
 \begin{keywords}
-The evaluation of glandular structures in adenocarcinomas is a fundamental problem in digital pathology, with implications o
-
 Histopathology, Cancer Diagnosis, Cancer Grading, Persistence homology, Persistence diagrams, Persistence images, Persistence landscapes, Machine learning
 \end{keywords}
 %
@@ -73,20 +71,22 @@ Histopathology, Cancer Diagnosis, Cancer Grading, Persistence homology, Persiste
 \label{sec:intro}
 Histopathology is the study of the presence, extent, and progression of a disease through microscopic examination of thin sections of biopsied tissue that are chemically processed and fixed onto glass slides and dyed with one or more stains to highlight different cellular/tissue components (e.g. cell nuclei or membranes) and antigens/proteins (e.g. Ki-67 indicating cell proliferation) of interest. It is regarded as the gold standard in clinical diagnosis and grading of several diseases including most types of cancer. 
 
-In clinical practice, histologic evaluation still largely involves the manual assessment of glass slides by a pathologist using a traditional microscope, although improvements in whole-slide imaging devices and subsequent regulatory approval of whole-slide-imaging and computational algorithms are rapidly paving the way for increased clinical use of digital pathology. Algorithmic evaluation of tissue specimens may eventually improve the efficiency, objectivity, reproducibility, and accuracy of the diagnostic process.
+In clinical practice, histologic evaluation still largely depends on manual assessment of glass slides by a pathologist with a traditional microscope, although improvements in whole-slide imaging devices and subsequent regulatory approval of whole-slide-imaging and computational algorithms are rapidly paving the way for increased clinical use of digital imaging and computational interpretation. Algorithmic evaluation of tissue specimens may eventually improve the efficiency, objectivity, reproducibility, and accuracy of the diagnostic process.
 
 Pathologists integrate information across scales from subcellular to macro when evaluating histology. For adenocarcinomas, lesions that originate in the epithelium of glandular structures including lung, prostate, pancreatic, and colorectal cancers, the architecture of glandular structures conveys significant information about the presence and degree of malignancy. Normal appearing structures with organized epithelium become disorganized with the unchecked growth and aberrant signaling in cancer. Significant work has been done to develop quantitative features and algorithms for characterizing glandular structures with the aim of providing computer-aided grading. In this paper we present a new feature for characterizing high-level structure based on \emph{persistence homology} and demonstrate its application in colorectal cancer.
 
 %
 \begin{figure}[t]
 \centering
-\includegraphics[height=1.5in]{figures/train_22_gland_annot.png}
-\includegraphics[height=1.5in]{figures/train_11_gland_annot.png}
-\caption{Sample benign (a) and malignant (b) images overlaid with manually annotated glands.}
+\setcounter{lfigcounter}{1}
+\includegraphics[width=3.0in]{figures/train_22_gland_annot.png}\\
+\ionbox{2.0in}\\
+\includegraphics[width=3.0in]{figures/train_11_gland_annot.png}
+\ionbox{2.0in}\\
+\caption{Sample benign (a) and malignant (b) images overlaid with manually annotated gland boundaries.}
 \label{fig:benign_malignant_example}
 \end{figure}
 %
-
 \section{Background}
 \label{sec:background}
 In this section, we present a brief background on persistence homology. Given a dataset representable in the form of a point cloud in some space, persistent homology can be seen as a theoretical tool to detect and characterize its prominent topological features (e.g. connected components, loops, voids) at multiple scales~\cite{Zhu2013}. These topological descriptors can then be used as features for building machine learning models to solve predictive problems. 
@@ -120,21 +120,6 @@ f_{(b,d)}\left ( x \right ) = \left\{\begin{array}{lll}
 \end{equation}
 Given a multi-set of $m$ birth-death points $\{(b_i, d_i)\}_{i=1}^{m}$ from a PD, persistence landscape is defined as a 2D function $\lambda : \mathbb{N} \times \mathbb{R} \to [0, \infty]$ where $\lambda(k, x)$ is equal to the k-th largest value of $\{f_{(b_i, d_i)}\left(x\right)\}_{i=1}^{m}$ if $k \leq m$ and zero otherwise. This function can be discretized over a grid to obtain a finite-dimensional vector representation for machine learning.
 
-\smallskip
-\noindent \textbf{Persistence image (PI) representation:} Given a multi-set of $m$ birth-death points $BD=\{(b_i, d_i)\}_{i=1}^{m}$ from a PD, a linear transform $T(b, d) = (b, d-b)$ is applied to obtain a multi-set of birth-persistence points $BP=\{(b_i, p_i)\}_{i=1}^{m}$. Based on this, a 2D real-valued function $\rho_{bp} : \mathbb{R} \times \mathbb{R} \to \mathbb{R}$ called a persistence surface is defined as weighted sum of isotropic bi-variate gaussian/normal probability density functions $\mathcal{N}\left(x, y; \sigma^2\right)$ with variance $\sigma^2$ centered at each of the birth-persistence pairs as follows:
-\begin{equation}
-\rho_{bp}(x, y) = \sum_{i=1}^{m} w(b_i,p_i) * \mathcal{N}\left(x - b_i, y - p_i; \sigma^{2}\right)
-\end{equation}
-where $w(b, p)$ is a weighting function critical to the stability of the persistence surface. A natural choice is to pick a weighting function that assigns higher weights to points with higher persistence values. However, in certain applications, points of medium persistence may be more important. To allow this, the weighting function is defined more generally as a piece-wise linear function as follows:
-\begin{equation}
-w(b, p; c) = \left\{\begin{array}{ll}
- 0 & if \; p \leq 0\\ 
- p / c & if \; p \leq c\\ 
- 1 & otherwise
-\end{array}\right.    
-\end{equation}
-where $c$ is the persistence value of the most important topological feature. Lastly, the persistence image is generated by defining a discrete grid in the domain of the 2D persistence surface function $\rho_{bp}(x, y)$ and computing its integral in each grid box. In case the birth values of all the points is equal to zero, as is often the case with the 0-dimensional homology group $H_0$ tracking the set of connected components, then both the persistence surface and persistence image can be represented compactly in 1D.  
-
 %
 \begin{figure*}[t]
 \centering
@@ -150,6 +135,21 @@ where $c$ is the persistence value of the most important topological feature. La
 \label{fig:method_illustration}
 \end{figure*}
 %
+
+\smallskip
+\noindent \textbf{Persistence image (PI) representation:} Given a multi-set of $m$ birth-death points $BD=\{(b_i, d_i)\}_{i=1}^{m}$ from a PD, a linear transform $T(b, d) = (b, d-b)$ is applied to obtain a multi-set of birth-persistence points $BP=\{(b_i, p_i)\}_{i=1}^{m}$. Based on this, a 2D real-valued function $\rho_{bp} : \mathbb{R} \times \mathbb{R} \to \mathbb{R}$ called a persistence surface is defined as weighted sum of isotropic bi-variate gaussian/normal probability density functions $\mathcal{N}\left(x, y; \sigma^2\right)$ with variance $\sigma^2$ centered at each of the birth-persistence pairs as follows:
+\begin{equation}
+\rho_{bp}(x, y) = \sum_{i=1}^{m} w(b_i,p_i) * \mathcal{N}\left(x - b_i, y - p_i; \sigma^{2}\right)
+\end{equation}
+where $w(b, p)$ is a weighting function critical to the stability of the persistence surface. A natural choice is to pick a weighting function that assigns higher weights to points with higher persistence values. However, in certain applications, points of medium persistence may be more important. To allow this, the weighting function is defined more generally as a piece-wise linear function as follows:
+\begin{equation}
+w(b, p; c) = \left\{\begin{array}{ll}
+ 0 & if \; p \leq 0\\ 
+ p / c & if \; p \leq c\\ 
+ 1 & otherwise
+\end{array}\right.    
+\end{equation}
+where $c$ is the persistence value of the most important topological feature. Lastly, the persistence image is generated by defining a discrete grid in the domain of the 2D persistence surface function $\rho_{bp}(x, y)$ and computing its integral in each grid box. In case the birth values of all the points is equal to zero, as is often the case with the 0-dimensional homology group $H_0$ tracking the set of connected components, then both the persistence surface and persistence image can be represented compactly in 1D.  
 
 \section{Method}
 \label{sec:method}
@@ -182,6 +182,8 @@ Cell graph features &  &  \\ \hline
 
 \section{Conclusion}
 \label{sec:conclusion}
+
+Analysis of colorectal histology present significant challenges, since the tissue is highly anisotropic, and different cutting planes can reveal vastly different patterns.
 
 % References
 \bibliographystyle{IEEEbib}
